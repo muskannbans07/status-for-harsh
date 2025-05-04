@@ -83,7 +83,7 @@ function getQuickLinks() {
         const semesterHeading = document.getElementById("semesterHeading");
   
         daysLeftElement.textContent = daysLeft;
-        semesterHeading.textContent = daysLeft <= 0 ? "Enjoy Your Break!" : "Days Until Break:";
+        semesterHeading.textContent = daysLeft <= 0 ? "Enjoy Your Break!" : "Days Until Break :";
   
         if (daysLeft <= 0) {
             launchPastelConfetti();
@@ -344,4 +344,86 @@ renderCourses();
     });
   });
 
+  const todoInputs = document.querySelectorAll('.todo-text');
+  const todoCheckboxes = document.querySelectorAll('.todo-list input[type="checkbox"]');
+
+  // Load from localStorage
+  window.addEventListener('DOMContentLoaded', () => {
+    const savedTodos = JSON.parse(localStorage.getItem('todos')) || [];
+
+    savedTodos.forEach((todo, index) => {
+      if (todoInputs[index]) {
+        todoInputs[index].value = todo.text || '';
+      }
+      if (todoCheckboxes[index]) {
+        todoCheckboxes[index].checked = todo.checked || false;
+      }
+    });
+  });
+
+  // Save to localStorage on change
+  function saveTodos() {
+    const todos = [];
+    todoInputs.forEach((input, index) => {
+      todos.push({
+        text: input.value,
+        checked: todoCheckboxes[index].checked
+      });
+    });
+    localStorage.setItem('todos', JSON.stringify(todos));
+  }
+
+  todoInputs.forEach(input => input.addEventListener('input', saveTodos));
+  todoCheckboxes.forEach(box => box.addEventListener('change', saveTodos));
+
+
+  window.addEventListener('DOMContentLoaded', () => {
+    // Remove hash from URL on load to prevent auto-scroll to anchors
+    if (window.location.hash) {
+      history.replaceState(null, null, window.location.pathname + window.location.search);
+    }
+  
+    applyAlternatingColors();
+    loadTimetable();
+    table.querySelectorAll('td[contenteditable]').forEach(cell => {
+      cell.addEventListener('input', saveTimetable);
+    });
+  
+    // Load todos
+    const savedTodos = JSON.parse(localStorage.getItem('todos')) || [];
+    savedTodos.forEach((todo, index) => {
+      if (todoInputs[index]) {
+        todoInputs[index].value = todo.text || '';
+      }
+      if (todoCheckboxes[index]) {
+        todoCheckboxes[index].checked = todo.checked || false;
+      }
+    });
+  
+    renderCourses();
+    renderAssignments();
+  });
+
+
+  function scrollToSection(event, sectionId) {
+    event.preventDefault();
+    const section = document.getElementById(sectionId);
+    if (section) {
+      // Remove focus from link (optional visual polish)
+      if (event.target && typeof event.target.blur === 'function') {
+        event.target.blur();
+      }
+      
+      // Scroll smoothly
+      section.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+  
+      // Remove hash from URL to avoid anchor jump on reload
+      history.pushState(null, null, ' ');
+    } else {
+      console.warn('Section not found:', sectionId);
+    }
+  }
 
