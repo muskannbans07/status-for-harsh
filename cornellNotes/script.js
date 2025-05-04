@@ -1,3 +1,4 @@
+const courses = {};
 
 function openModalForCourse(courseName) {
   const modal = document.getElementById('modal');
@@ -13,14 +14,9 @@ function openModalForCourse(courseName) {
     const row = document.createElement('tr');
     row.innerHTML = 
     `<td class="note-title-cell">
-        ${note.title}
+        <p class="note-title" contenteditable="true">${note.title}
         <button class="open-note-btn" data-note-content="${note.title}">OPEN</button>
-        <div class="edit-dropdown-container">
-            <button class="edit-note-btn">EDIT</button>
-            <div class="edit-dropdown">
-                <div class="edit-option delete-option">Delete</div>
-            </div>
-        </div>
+        <button class="delete-note-btn">delete</button>
       </td>
       <td>${note.created}</td>
       <td>${note.lastUpdated}</td>
@@ -124,6 +120,13 @@ function createNewCard() {
     fileInput.click();
     document.body.removeChild(fileInput);
   });
+
+  newCard.addEventListener('click', function () {
+    const topicElement = newCard.querySelector('.card-topic');
+    const courseName = topicElement.textContent.trim();
+    openModalForCourse(courseName);
+  });
+  
 }
 
 function finalizeCourseName(e) {
@@ -167,27 +170,23 @@ document.addEventListener('DOMContentLoaded', () => {
   modalNewButton.addEventListener('click', function () {
     const today = new Date().toISOString().split('T')[0];
     const newRow = document.createElement('tr');
-
-    
+  
     newRow.innerHTML = `
       <td class="note-title-cell">
-        New Note
+        <p class="note-title" contenteditable="true">New Note</p>
         <button class="open-note-btn">OPEN</button>
-        <div class="edit-dropdown-container">
-          <button class="edit-note-btn">EDIT</button>
-          <div class="edit-dropdown">
-            <div class="edit-option delete-option">Delete</div>
-          </div>
-        </div>
+        <button class="delete-note-btn">DELETE</button>
       </td>
       <td>${today}</td>
       <td>${today}</td>
     `;
-
-  
     notesList.appendChild(newRow);
+  
+    newRow.querySelector('.delete-note-btn').addEventListener('click', function () {
+      newRow.remove();
+    });
   });
-
+  
 
   // Prevent clicks on edit button and menu from opening modal
   document.addEventListener('click', function(e) {
@@ -264,7 +263,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         editMenu.style.display = 'block';
   
-        // 🔥 Attach listeners each time menu opens
+        // Attach listeners each time menu opens
         attachDropdownListeners(editMenu);
       }
     });
