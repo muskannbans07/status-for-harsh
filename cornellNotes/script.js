@@ -1,5 +1,13 @@
 const courses = {};
 
+function saveCoursesToStorage() {
+  localStorage.setItem('courses', JSON.stringify(courses));
+}
+
+function getCourses() {
+  return JSON.parse(localStorage.getItem('courses')) || [];
+}
+
 function openModalForCourse(courseName) {
   const modal = document.getElementById('modal');
   const modalTitle = document.getElementById('modal-course-title');
@@ -96,7 +104,13 @@ function createNewCard() {
   deleteBtn.addEventListener('click', function(e) {
     e.stopPropagation();
     newCard.remove();
+
+    const courseName = card.querySelector('.card-topic').textContent.trim();
+    delete courses[courseName];
+    saveCoursesToStorage();
+    card.remove();
   });
+
 
   // Change image
   const changeImageBtn = newCard.querySelector('.change-image');
@@ -132,18 +146,62 @@ function createNewCard() {
 function finalizeCourseName(e) {
   const input = e.target;
   const courseName = input.value.trim() || "Untitled Course";
-    
-  // Replace the input with normal text
+
+  // Replace the input with plain text
   const parent = input.parentElement;
-  parent.innerHTML = courseName;
+  parent.textContent = courseName;
+
+  // Create entry in courses object
+  courses[courseName] = [];
+
+  // Save to localStorage
+  saveCoursesToStorage();
 }
 
 
+
 document.addEventListener('DOMContentLoaded', () => {
+  let courses = getCourses();
+
   const gridContainer = document.querySelector('.grid-container');
   const newPageCard = document.getElementById('new-page-card');
   const addNewButton = document.getElementById('add-new-button');
   const modal = document.getElementById('modal');
+  
+  const stored = localStorage.getItem('courses');
+  if (stored) {
+    const parsed = JSON.parse(stored);
+    Object.assign(courses, parsed);
+    Object.keys(courses).forEach(courseName => {
+      createCardFromStorage(courseName);
+    });
+  }
+
+  function createCardFromStorage(courseName) {
+    const newCard = document.createElement('div');
+    newCard.className = 'card';
+  
+    newCard.innerHTML = `
+      <div class="card-edit-container">
+        <button class="card-edit-btn">⋯</button>
+        <div class="card-edit-menu">
+          <div class="card-edit-option delete-course">Delete</div>
+          <div class="card-edit-option change-image">Change Image</div>
+        </div>
+      </div>
+      <img class="card-header-image" src="./pictures/notes-header.jpg">
+      <p class="card-topic">${courseName}</p>
+    `;
+  
+    // Add click handler
+    newCard.addEventListener('click', function () {
+      openModalForCourse(courseName);
+    });
+  
+    const gridContainer = document.querySelector('.grid-container');
+    const newPageCard = document.getElementById('new-page-card');
+    gridContainer.insertBefore(newCard, newPageCard);
+  }
   
 
   // When you click inside the grid
@@ -346,8 +404,6 @@ document.addEventListener('DOMContentLoaded', () => {
       editMenu.style.display = 'none';
     });
   }
-  
-  
 });
 
 document.addEventListener('click', function (event) {
@@ -372,6 +428,9 @@ if (e.target && e.target.classList.contains("open-note-btn")) {
   <h1>${e.target.dataset.noteTitle || 'Untitled Note'}</h1>
   <p><strong>Created:</strong> ${e.target.dataset.noteCreated || 'N/A'}</p>
   <p><strong>Last Updated:</strong> ${e.target.dataset.noteUpdated || 'N/A'}</p>
+  <div class="main-content">
+    <div contenteditable="true" placeholder="Start typing here..."></div>
+  </div>
 `;
 
   sidePanel.classList.add("open");

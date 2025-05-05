@@ -1,6 +1,6 @@
 .announcements-heading {
     margin-bottom: 0px;
-    width: 600px;
+    width: 560px;
 }
 
 .announcements-main {
@@ -28,9 +28,8 @@
 
 .announcement-item {
   display: flex;
-  align-items: center; /* Vertically centers the icon and text */
-  gap: 6px; /* Adds spacing between the icon and the text */
-  margin-bottom: 0px;
+  align-items: center; 
+  gap: 6px; 
 }
 
 .pin-icon {

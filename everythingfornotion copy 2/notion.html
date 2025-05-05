@@ -132,10 +132,6 @@
             font-size: 19px;
         }
 
-        .new-page button:hover {
-            background-color: #444;
-        }
-
         .hidden {
             display: none;
         }
@@ -254,7 +250,7 @@ function updateCountdown() {
     const semesterHeading = document.getElementById('semesterHeading');
 
     daysLeftElement.textContent = `${daysLeft} day${daysLeft !== 1 ? 's' : ''}`;
-    semesterHeading.textContent = daysLeft <= 0 ? "Enjoy Your Break!" : "Days Until Break:";
+    semesterHeading.textContent = daysLeft <= 0 ? "Enjoy Your Break!" : "Days Until Break :";
 
     if (daysLeft <= 0) {
         launchPastelConfetti();  // Trigger confetti when break starts
@@ -294,9 +290,9 @@ document.addEventListener('click', () => {
     <aside class="sidebar">
         <p class="sidebar-header"></p>
         <ul class="sidebar-menu">
-            <li class="active"><span>Student Planner</span></li>
-            <li><span>Courses</span></li>
-            <li><span>Quick Links</span></li>
+            <li class="active"><span>Home</span></li>
+            <li><span><a href="#" class="active" onclick="scrollToSection(event, 'courses')">Courses</a></span></li>
+            <li><span><a href="#" class="active" onclick="scrollToSection(event, 'timetable')">Time Table</a></span></li>
             <li><span>Class Notes</span></li>
             <li><span>Group Project Planner</span></li>
             <li><span><a href="tracker.html" class="active">Expense Tracker</a></span></li>
@@ -341,9 +337,9 @@ document.addEventListener('click', () => {
         </div>
     </div>
 
-    <div class="courses-container">
+    <div class="courses-container" id="courses">
         <h1> Courses</h1>
-        
+        <div class="courses-scroll-wrapper">
         <div class="courses-grid">
             <!-- Course cards will be added here dynamically -->
           </div>
@@ -351,6 +347,7 @@ document.addEventListener('click', () => {
         <div class="new-page">
           <button id="newPageBtn">+ New page</button>
         </div>
+    </div>
     </div>   
     
     <div id="courseModal" class="modal">
@@ -404,8 +401,21 @@ document.addEventListener('click', () => {
     </div>
 
     <div class="home-bottom">
-                <div id="timetable-container">
-                    <table id="class-timetable">
+
+        <div class="todo-container">
+            <h2>To-do List</h2>
+            <ul class="todo-list">
+              <li><label><input type="checkbox" /><span class="checkmark"></span><input type="text" class="todo-text"> </label></li>
+              <li><label><input type="checkbox" /><span class="checkmark"></span></span><input type="text" class="todo-text"> </label></li>
+              <li><label><input type="checkbox" /><span class="checkmark"></span> </span><input type="text" class="todo-text"></label></li>
+              <li><label><input type="checkbox" /><span class="checkmark"></span></span><input type="text" class="todo-text"> </label></li>
+              <li><label><input type="checkbox" /><span class="checkmark"></span> </span><input type="text" class="todo-text"></label></li>
+              <li><label><input type="checkbox" /><span class="checkmark"></span></span><input type="text" class="todo-text"> </label></li>
+            </ul>
+          </div>
+
+          <div class="timetable-container" id="timetable">
+            <table id="class-timetable">
                       <thead>
                         <tr>
                           <th>Time</th>
@@ -510,7 +520,7 @@ document.addEventListener('click', () => {
                     </table>
                 </div>
 
-                <div></div>
+
     </div>
 
               <script src="script.js"></script>
