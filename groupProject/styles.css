@@ -1,6 +1,7 @@
-* {
+html {
     font-family: 'Roboto Mono';
     box-sizing: border-box;
+    scroll-behavior: smooth;
 }
 
 button {
@@ -39,11 +40,12 @@ body {
 
 .top {
     position: relative;
-    margin-left: 117px;
+    margin-left: 80px;
     margin-top: -55px;
     display: flex;
     align-items: center;
     gap: 934px;
+    margin-bottom: 20px;
 }
 
 .profile {
@@ -53,7 +55,7 @@ body {
 }
 
 .profile-img {
-    border-radius: 10px;
+    border-radius: 25px;
 }
 
 .share-button, .add-new {
@@ -76,8 +78,9 @@ button:active {
 }
 
 h1 {
-    margin-left: 120px;
-    margin-top: 10px;
+    margin-left: 80px;
+    margin-top: 0px;
+    margin-bottom: 30px;
 }
 
 .flex-container {

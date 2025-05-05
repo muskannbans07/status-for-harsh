@@ -1,3 +1,12 @@
+const courses = {};
+
+function saveCoursesToStorage() {
+  localStorage.setItem('courses', JSON.stringify(courses));
+}
+
+function getCourses() {
+  return JSON.parse(localStorage.getItem('courses')) || [];
+}
 
 function openModalForCourse(courseName) {
   const modal = document.getElementById('modal');
@@ -13,14 +22,9 @@ function openModalForCourse(courseName) {
     const row = document.createElement('tr');
     row.innerHTML = 
     `<td class="note-title-cell">
-        ${note.title}
+        <p class="note-title" contenteditable="true">${note.title}
         <button class="open-note-btn" data-note-content="${note.title}">OPEN</button>
-        <div class="edit-dropdown-container">
-            <button class="edit-note-btn">EDIT</button>
-            <div class="edit-dropdown">
-                <div class="edit-option delete-option">Delete</div>
-            </div>
-        </div>
+        <button class="delete-note-btn">delete</button>
       </td>
       <td>${note.created}</td>
       <td>${note.lastUpdated}</td>
@@ -100,7 +104,13 @@ function createNewCard() {
   deleteBtn.addEventListener('click', function(e) {
     e.stopPropagation();
     newCard.remove();
+
+    const courseName = card.querySelector('.card-topic').textContent.trim();
+    delete courses[courseName];
+    saveCoursesToStorage();
+    card.remove();
   });
+
 
   // Change image
   const changeImageBtn = newCard.querySelector('.change-image');
@@ -124,23 +134,74 @@ function createNewCard() {
     fileInput.click();
     document.body.removeChild(fileInput);
   });
+
+  newCard.addEventListener('click', function () {
+    const topicElement = newCard.querySelector('.card-topic');
+    const courseName = topicElement.textContent.trim();
+    openModalForCourse(courseName);
+  });
+  
 }
 
 function finalizeCourseName(e) {
   const input = e.target;
   const courseName = input.value.trim() || "Untitled Course";
-    
-  // Replace the input with normal text
+
+  // Replace the input with plain text
   const parent = input.parentElement;
-  parent.innerHTML = courseName;
+  parent.textContent = courseName;
+
+  // Create entry in courses object
+  courses[courseName] = [];
+
+  // Save to localStorage
+  saveCoursesToStorage();
 }
 
 
+
 document.addEventListener('DOMContentLoaded', () => {
+  let courses = getCourses();
+
   const gridContainer = document.querySelector('.grid-container');
   const newPageCard = document.getElementById('new-page-card');
   const addNewButton = document.getElementById('add-new-button');
   const modal = document.getElementById('modal');
+  
+  const stored = localStorage.getItem('courses');
+  if (stored) {
+    const parsed = JSON.parse(stored);
+    Object.assign(courses, parsed);
+    Object.keys(courses).forEach(courseName => {
+      createCardFromStorage(courseName);
+    });
+  }
+
+  function createCardFromStorage(courseName) {
+    const newCard = document.createElement('div');
+    newCard.className = 'card';
+  
+    newCard.innerHTML = `
+      <div class="card-edit-container">
+        <button class="card-edit-btn">⋯</button>
+        <div class="card-edit-menu">
+          <div class="card-edit-option delete-course">Delete</div>
+          <div class="card-edit-option change-image">Change Image</div>
+        </div>
+      </div>
+      <img class="card-header-image" src="./pictures/notes-header.jpg">
+      <p class="card-topic">${courseName}</p>
+    `;
+  
+    // Add click handler
+    newCard.addEventListener('click', function () {
+      openModalForCourse(courseName);
+    });
+  
+    const gridContainer = document.querySelector('.grid-container');
+    const newPageCard = document.getElementById('new-page-card');
+    gridContainer.insertBefore(newCard, newPageCard);
+  }
   
 
   // When you click inside the grid
@@ -167,27 +228,23 @@ document.addEventListener('DOMContentLoaded', () => {
   modalNewButton.addEventListener('click', function () {
     const today = new Date().toISOString().split('T')[0];
     const newRow = document.createElement('tr');
-
-    
+  
     newRow.innerHTML = `
       <td class="note-title-cell">
-        New Note
+        <p class="note-title" contenteditable="true">New Note</p>
         <button class="open-note-btn">OPEN</button>
-        <div class="edit-dropdown-container">
-          <button class="edit-note-btn">EDIT</button>
-          <div class="edit-dropdown">
-            <div class="edit-option delete-option">Delete</div>
-          </div>
-        </div>
+        <button class="delete-note-btn">DELETE</button>
       </td>
       <td>${today}</td>
       <td>${today}</td>
     `;
-
-  
     notesList.appendChild(newRow);
+  
+    newRow.querySelector('.delete-note-btn').addEventListener('click', function () {
+      newRow.remove();
+    });
   });
-
+  
 
   // Prevent clicks on edit button and menu from opening modal
   document.addEventListener('click', function(e) {
@@ -264,7 +321,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         editMenu.style.display = 'block';
   
-        // 🔥 Attach listeners each time menu opens
+        // Attach listeners each time menu opens
         attachDropdownListeners(editMenu);
       }
     });
@@ -347,8 +404,6 @@ document.addEventListener('DOMContentLoaded', () => {
       editMenu.style.display = 'none';
     });
   }
-  
-  
 });
 
 document.addEventListener('click', function (event) {
@@ -373,6 +428,9 @@ if (e.target && e.target.classList.contains("open-note-btn")) {
   <h1>${e.target.dataset.noteTitle || 'Untitled Note'}</h1>
   <p><strong>Created:</strong> ${e.target.dataset.noteCreated || 'N/A'}</p>
   <p><strong>Last Updated:</strong> ${e.target.dataset.noteUpdated || 'N/A'}</p>
+  <div class="main-content">
+    <div contenteditable="true" placeholder="Start typing here..."></div>
+  </div>
 `;
 
   sidePanel.classList.add("open");
